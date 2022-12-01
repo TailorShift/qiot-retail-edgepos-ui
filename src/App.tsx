@@ -59,7 +59,7 @@ function Items({items, alerts}: ItemsProps) {
   )
 }
 
-function SearchBar({addItem}: any) {
+function AddBar({addItem}: any) {
   const [text, setText] = React.useState("");
   function click() {
     fetch('http://localhost:8080/scan', { method: 'POST', body: text })
@@ -67,11 +67,39 @@ function SearchBar({addItem}: any) {
       .then((data) => addItem(data));
     setText("");
   }
+
+  React.useEffect(() => {
+    let code = "";
+    let reading = false;
+    const listener = (e: any) => {
+      if (e.keyCode === 13) {
+        if(code.length > 3 && reading) {
+          fetch('http://localhost:8080/scan', { method: 'POST', body: code })
+            .then((response) => response.json())
+            .then((data) => addItem(data));
+          reading = false;
+          code = "";
+        }
+      } else {
+        code += e.key;
+      }
+      if(!reading) {
+        reading = true;
+        setTimeout(() => {
+          code = "";
+          reading = false;
+        }, 500);
+      }
+    }
+    document.addEventListener('keypress', listener);
+    return () => document.removeEventListener('keypress', listener);
+    }, []);
+
   return (
     <>
       <label>
         Manual entry:&nbsp;
-        <input type="text" name="name" value={text} onChange={(e) => {setText(e.target.value)}} placeholder="Search..."/>
+        <input type="text" name="name" value={text} onChange={(e) => {setText(e.target.value)}} placeholder="Code..."/>
       </label>
       <button onClick={click}>Add</button>
     </>
@@ -104,7 +132,7 @@ function App() {
       <Alerts alerts={alerts} />
       <p>Items:</p>
       <Items items={items} alerts={alerts} />
-      <SearchBar addItem={addItem} />
+      <AddBar addItem={addItem} />
     </div>
   );
 }
