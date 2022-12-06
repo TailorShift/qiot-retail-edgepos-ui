@@ -2,23 +2,29 @@ import React from 'react';
 import { isEqual } from 'lodash';
 import { scanToObject } from "./scanner";
 import { Alert, Coupon, Item, LoyaltyCard } from './types';
+import MAlert from '@mui/material/Alert';
+import MAlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 interface AlertsProps {
   alerts: Alert[]
 }
 function Alerts({alerts}: AlertsProps) {
-  const myList = alerts.map((item, index) =>
-    <li key={index}><b>{item.message}</b><br />
-    for item: {item.subject.shortdesc}
-    </li>
+  const myList = alerts.map((item, index) => <>
+    <MAlert variant="outlined" severity="warning">
+      <MAlertTitle>{item.message}</MAlertTitle>
+      for item: {item.subject.shortdesc}
+    </MAlert><br /></>
   );
 
   return (
     <>
-      <p>{myList.length > 0 ? "Alerts:" : ""}</p>
-      <ul>
-        { myList }
-      </ul>
+      <p>{myList.length > 0 ? (<Typography sx={{ fontSize: 14 }} color="text.secondary">Alerts: </Typography>) : ""}</p>
+      { myList }
     </>
   )
 }
@@ -28,12 +34,30 @@ interface LogsProps {
 }
 function Logs({logs}: LogsProps) {
   const myList = logs.map((item, index) =>
-    <li key={index}> {item}</li>
+    <li key={index}>{item}</li>
   );
 
   return (
     <>
       <p>{myList.length > 0 ? "Notes:" : ""}</p>
+      <ul>
+        { myList }
+      </ul>
+    </>
+  )
+}
+
+interface CouponsProps {
+  coupons: Coupon[]
+}
+function Coupons({coupons}: CouponsProps) {
+  const myList = coupons.map((item, index) =>
+    <li key={index}>{item.code}</li>
+  );
+
+  return (
+    <>
+      <p>{myList.length > 0 ? "Coupons:" : ""}</p>
       <ul>
         { myList }
       </ul>
@@ -60,6 +84,9 @@ function Items({items, alerts}: ItemsProps) {
     </li>
   );
 
+  if (myItems.length < 1) {
+    return (<p>Scan the first item to begin.</p>);
+  }
   return (
     <ul>
       { myItems }
@@ -88,9 +115,7 @@ function AddBar({addItem}: any) {
 }
 
 function App() {
-  let hardcoded: Item[] = [
-    {barcode:"barcode", shortdesc:"apple", category:"GROCERY", price:1.99, weight:1 },
-  ];
+  let hardcoded: Item[] = [];
   const [items, setItems] = React.useState(hardcoded);
   let h_coupons: Coupon[] = [];
   const [coupons, setCoupons] = React.useState(h_coupons);
@@ -113,6 +138,7 @@ function App() {
 
   function refreshBill() {
     const payload = {items: items, coupons: coupons, loyaltyID: loyaltyID?.loyaltyID};
+    console.log(payload);
     fetch('http://localhost:8080/bill', { method: 'POST', headers: {'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then((response) => response.json())
       .then((data) => {
@@ -122,7 +148,6 @@ function App() {
         setDiscount(data["discount"]);
         setTotal(data["total"]);
       });
-    console.log(alerts);
   }
 
 
@@ -159,15 +184,60 @@ function App() {
     }, []);
 
   return (
-    <div>
-      Subtotal: {subtotal}, Discount: {discount}, Total: {total}
-      { loyaltyID ? ( <><br />Loyalty card ID: {loyaltyID.loyaltyID}</> ) : (<></>) }
-      <Alerts alerts={alerts} />
-      <p>Items:</p>
-      <Items items={items} alerts={alerts} />
-      <AddBar addItem={addItem} />
-      <Logs logs={logs} />
-    </div>
+      <Box sx={{ flexGrow: 1 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+        <AddBar addItem={addItem} /><br />
+        Items:
+        <Items items={items} alerts={alerts} />
+        <Coupons coupons={coupons} />
+        <Logs logs={logs} />
+        </Grid>
+        <Grid item xs={6}>
+          <Grid container spacing={2}>
+            <Grid item xs={4}>
+              <Card>
+                <CardContent>
+                  <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                    Subtotal:
+                  </Typography>
+                  <Typography variant="h3" component="div" align="right">
+                    {subtotal}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={4}>
+            <Card>
+                <CardContent>
+                  <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                    Discount:
+                  </Typography>
+                  <Typography variant="h3" component="div" align="right">
+                    {discount}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={4}>
+              <Card>
+                <CardContent>
+                  <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                    Total:
+                  </Typography>
+                  <Typography variant="h3" component="div" align="right">
+                    {total}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+          { loyaltyID ? (<Card><CardContent><Typography sx={{ fontSize: 14 }} color="text.secondary">Loyalty card ID: </Typography><Typography variant="button" display="block" align="right">{loyaltyID.loyaltyID}</Typography></CardContent></Card>) : (<></>) }
+          <Alerts alerts={alerts} />
+        </Grid>
+      </Grid>
+      </Box>
+
   );
 }
 
