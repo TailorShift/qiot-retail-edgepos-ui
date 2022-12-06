@@ -161,10 +161,7 @@ function App() {
   return (
     <div>
       Subtotal: {subtotal}, Discount: {discount}, Total: {total}
-      { loyaltyID ? (
-        <><br />Loyalty card ID: {loyaltyID.loyaltyID}</>
-      ) : (<></>)
-      }
+      { loyaltyID ? ( <><br />Loyalty card ID: {loyaltyID.loyaltyID}</> ) : (<></>) }
       <Alerts alerts={alerts} />
       <p>Items:</p>
       <Items items={items} alerts={alerts} />
