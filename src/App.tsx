@@ -9,6 +9,7 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import test from 'node:test';
 
 interface AlertsProps {
   alerts: Alert[]
@@ -94,12 +95,11 @@ function Items({items, alerts}: ItemsProps) {
   )
 }
 
-function AddBar({addItem}: any) {
+function AddBar({addItem: addScanned}: any) {
   const [text, setText] = React.useState("");
   function click() {
-    fetch('http://localhost:8080/scan', { method: 'POST', body: text })
-      .then((response) => response.json())
-      .then((data) => addItem(data));
+    const obj = scanToObject(text);
+    addScanned(obj);
     setText("");
   }
 
@@ -127,10 +127,6 @@ function App() {
   const [subtotal, setSubtotal] = React.useState(0.0);
   const [discount, setDiscount] = React.useState(0.0);
   const [total, setTotal] = React.useState(0.0);
-
-  function addItem(i: Item) {
-    setItems((prev) => [...prev, i]);
-  }
   
   React.useEffect(() => {
     refreshBill();
@@ -150,6 +146,15 @@ function App() {
       });
   }
 
+  function addScanned(obj: Item | Coupon | LoyaltyCard) {
+    if (obj instanceof Item) {
+      setItems((prev) => [...prev, obj]);
+    } else if (obj instanceof Coupon) {
+      setCoupons((prev) => [...prev, obj]);
+    } else if (obj instanceof LoyaltyCard) {
+      setLoyaltyID(obj);
+    }
+  }
 
   React.useEffect(() => {
     let code = "";
@@ -158,13 +163,7 @@ function App() {
       if (e.keyCode === 13) {
         if(code.length > 3 && reading) {
           const obj = scanToObject(code);
-          if (obj instanceof Item) {
-            addItem(obj);
-          } else if (obj instanceof Coupon) {
-            setCoupons((prev) => [...prev, obj]);
-          } else if (obj instanceof LoyaltyCard) {
-            setLoyaltyID(obj);
-          }
+          addScanned(obj);
           reading = false;
           code = "";
         }
@@ -187,7 +186,7 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
         <Grid item xs={6}>
-        <AddBar addItem={addItem} /><br />
+        <AddBar addItem={addScanned} /><br />
         Items:
         <Items items={items} alerts={alerts} />
         <Coupons coupons={coupons} />
