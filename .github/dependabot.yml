@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    # ignore "Development dependency group" e.g.: devDependencies 
+    ignore:
+      - dependency-type: "development"
+    # only require security updates and want to exclude version updates, ref https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates
+    open-pull-requests-limit: 0
