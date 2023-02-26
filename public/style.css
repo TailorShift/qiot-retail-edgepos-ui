@@ -1,0 +1,15 @@
+body {
+  font-family: sans-serif;
+}
+
+ul.itemList {
+  padding: 1em;
+  margin: none;
+  background-color: #efefef;
+  list-style: none;
+}
+
+li.item {
+  margin-left: 0;
+  margin-bottom: 1em;
+}

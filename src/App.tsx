@@ -71,7 +71,7 @@ interface ItemsProps {
 }
 function Items({items, alerts}: ItemsProps) {
   const myItems = items.map((item, index) =>
-    <li key={index}><b>{item.shortdesc}</b><br />
+    <li className="item" key={index}><b>{item.shortdesc}</b><br />
       {item.barcode} (price: {JSON.stringify(item.price)}{item.sn? ", serial no.:"+item.sn : ""})
       <>
       {alerts.filter((a) => isEqual(a.subject, item) ).map((a) => { return (
@@ -88,7 +88,7 @@ function Items({items, alerts}: ItemsProps) {
     return (<p>Scan the first item to begin.</p>);
   }
   return (
-    <ul>
+    <ul className = "itemList">
       { myItems }
     </ul>
   )
@@ -113,6 +113,14 @@ function AddBar({addItem: addScanned}: any) {
   );
 }
 
+function AddCheckout({evt: onClick}: any) {
+	return (
+		<>
+			<button onClick={onClick}>Checkout</button>
+		</>
+	);
+}
+
 function App() {
   let hardcoded: Item[] = [];
   const [items, setItems] = React.useState(hardcoded);
@@ -128,12 +136,22 @@ function App() {
   const [total, setTotal] = React.useState(0.0);
   
   React.useEffect(() => {
-    refreshBill();
+    refreshBill(false);
   }, [items, coupons, loyaltyID]);
 
-  function refreshBill() {
-    const payload = {items: items, coupons: coupons, loyaltyID: loyaltyID?.loyaltyID};
-    console.log(payload);
+  function checkout() {
+    refreshBill(true);
+
+	  setTotal(0); 
+	  setSubtotal(0);
+    setLoyaltyID(undefined);
+    setCoupons([]);
+	  setItems([]);
+  }
+
+  function refreshBill(isCheckout: boolean) {
+    const payload = {items: items, coupons: coupons, loyaltyID: loyaltyID?.loyaltyID, isCheckout: isCheckout};
+
     fetch('http://localhost:8080/bill', { method: 'POST', headers: {'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then((response) => response.json())
       .then((data) => {
@@ -234,6 +252,7 @@ function App() {
           <Alerts alerts={alerts} />
         </Grid>
       </Grid>
+	  <AddCheckout evt={checkout} />
       </Box>
 
   );
