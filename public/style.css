@@ -13,3 +13,17 @@ li.item {
   margin-left: 0;
   margin-bottom: 1em;
 }
+
+button {
+  background-color: #99ff66;
+  padding: .4em;
+  border-radius: .2em;
+  color: black;
+  font-weight: bold;
+  border: 1px solid black;
+}
+
+input {
+  padding: .4em;
+  margin-right: 1em;
+}
