@@ -152,7 +152,7 @@ function App() {
   function refreshBill(isCheckout: boolean) {
     const payload = {items: items, coupons: coupons, loyaltyID: loyaltyID?.loyaltyID, isCheckout: isCheckout};
 
-    fetch('http://localhost:8080/bill', { method: 'POST', headers: {'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    fetch('/bill', { method: 'POST', headers: {'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       .then((response) => response.json())
       .then((data) => {
         setAlerts(data["alerts"]);
