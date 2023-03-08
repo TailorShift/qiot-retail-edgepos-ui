@@ -23,6 +23,5 @@ ENV NODE_ENV production
 ENV PORT 3000
 EXPOSE 3000
 
-RUN ls -al node_modules/.bin
 CMD ["./node_modules/.bin/serve"]
 
