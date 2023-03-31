@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+**This repository is deprecated. We rewrote the ui from scratch. The new repo is here: https://github.com/TailorShift/tailorshift-ui**
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
